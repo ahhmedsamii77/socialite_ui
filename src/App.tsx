@@ -85,6 +85,9 @@ const router = createBrowserRouter([
       }
     ]
   }
+  , {
+    path: "*", element: <Home />
+  }
 ]);
 
 export const client = new QueryClient({
