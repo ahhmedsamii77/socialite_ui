@@ -2,7 +2,7 @@
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/(?!assets|logo\\.svg|vite\\.svg).*",
+      "source": "/(.*)",
       "destination": "/index.html"
     }
   ]
