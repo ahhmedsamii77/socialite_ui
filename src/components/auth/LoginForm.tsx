@@ -13,12 +13,24 @@ import { useLogin, useloginWithGmail } from "@/lib/apis/queries";
 import { GoogleLogin } from "@react-oauth/google";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/lib/store/auth";
+import { useRef, useState, useEffect } from "react";
 
 export default function LoginForm() {
   const { mutateAsync: loginWithGmail } = useloginWithGmail();
   const { mutateAsync: login } = useLogin();
   const { setAccess_Token, setRefresh_Token, setRole } = useAuthStore();
   const navigate = useNavigate();
+  const googleBtnRef = useRef<HTMLDivElement>(null);
+  const [googleBtnWidth, setGoogleBtnWidth] = useState(400);
+
+  useEffect(() => {
+    if (!googleBtnRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setGoogleBtnWidth(Math.floor(entry.contentRect.width));
+    });
+    observer.observe(googleBtnRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   async function handleloginWithGmail(credentialResponse: any) {
     if (!credentialResponse) return;
@@ -72,7 +84,13 @@ export default function LoginForm() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup>
             <Field>
-              <GoogleLogin onError={() => toast.error("Fail to login.")} onSuccess={handleloginWithGmail} />
+              <div ref={googleBtnRef} className="w-full">
+                <GoogleLogin
+                  width={googleBtnWidth}
+                  onError={() => toast.error("Fail to login.")}
+                  onSuccess={handleloginWithGmail}
+                />
+              </div>
             </Field>
 
             <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card text-xs -my-4">

@@ -14,12 +14,24 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectVa
 import { GoogleLogin } from "@react-oauth/google";
 import toast from "react-hot-toast";
 import { useAuthStore } from "@/lib/store/auth";
+import { useRef, useState, useEffect } from "react";
 
 export default function SignupForm() {
   const { mutateAsync: createAccountWithGmail } = useCreateAccountWithGmail();
   const { mutateAsync: createAccount } = useCreateAccount();
   const { setAccess_Token, setRefresh_Token } = useAuthStore();
   const navigate = useNavigate();
+  const googleBtnRef = useRef<HTMLDivElement>(null);
+  const [googleBtnWidth, setGoogleBtnWidth] = useState(400);
+
+  useEffect(() => {
+    if (!googleBtnRef.current) return;
+    const observer = new ResizeObserver(([entry]) => {
+      setGoogleBtnWidth(Math.floor(entry.contentRect.width));
+    });
+    observer.observe(googleBtnRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   async function handleCreateAccountWithGmail(credentialResponse: any) {
     if (!credentialResponse) return;
@@ -73,7 +85,13 @@ export default function SignupForm() {
         <form onSubmit={handleSubmit(onSubmit)}>
           <FieldGroup>
             <Field>
-              <GoogleLogin onError={() => toast.error("Fail to create account.")} onSuccess={handleCreateAccountWithGmail} />
+              <div ref={googleBtnRef} className="w-full">
+                <GoogleLogin
+                  width={googleBtnWidth}
+                  onError={() => toast.error("Fail to create account.")}
+                  onSuccess={handleCreateAccountWithGmail}
+                />
+              </div>
             </Field>
 
             <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card text-xs -my-4">
